@@ -209,7 +209,8 @@ class SystemPay
         foreach ($fields as $field => $value)
                 $contenu_signature .= $value."+";
         $contenu_signature .= $this->key;
-        $signature = hash_hmac('sha256', $contenu_signature, $this->key, true);
+        //https://payzen.io/fr-FR/form-payment/standard-payment/exemple-d-implementation-en-php.html
+        $signature = base64_encode(hash_hmac('sha256', $contenu_signature, $this->key, true));
         //$signature = sha1($contenu_signature);
         return $signature;
     }
