@@ -204,7 +204,8 @@ class SystemPay
         foreach ($fields as $field => $value)
                 $contenu_signature .= $value."+";
         $contenu_signature .= $this->key;
-        $signature = sha1($contenu_signature);
+        $signature = hash('sha256', $contenu_signature);
+        //$signature = sha1($contenu_signature);
         return $signature;
     }
 }
