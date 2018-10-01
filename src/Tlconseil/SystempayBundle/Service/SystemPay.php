@@ -20,6 +20,7 @@ class SystemPay
 
     /**
      * @var array
+     * note: it's not only mandatory fields, to have all fields working we add te add them here, see https://github.com/baptiste-dulac/SystempayBundle/issues/7
      */
     private $mandatoryFields = array(
         'action_mode' => null,
@@ -31,6 +32,10 @@ class SystemPay
         'redirect_success_message' => null,
         'redirect_error_message' => null,
         'url_return' => null,
+        'return_mode' => null,
+        'redirect_success_timeout' => null,
+        'redirect_error_timeout' => null,
+        'language' => null,
     );
 
     /**
