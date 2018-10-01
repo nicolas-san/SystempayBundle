@@ -209,7 +209,7 @@ class SystemPay
         foreach ($fields as $field => $value)
                 $contenu_signature .= $value."+";
         $contenu_signature .= $this->key;
-        $signature = hash('sha256', $contenu_signature);
+        $signature = hash_hmac('sha256', $contenu_signature, $this->key);
         //$signature = sha1($contenu_signature);
         return $signature;
     }
