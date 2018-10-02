@@ -56,13 +56,14 @@ class SystemPay
     public function __construct(EntityManager $entityManager, Container $container)
     {
         $this->entityManager = $entityManager;
-        foreach ($this->mandatoryFields as $field => $value)
+        foreach ($this->mandatoryFields as $field => $value) {
             $this->mandatoryFields[$field] = $container->getParameter(sprintf('tlconseil_systempay.%s', $field));
-        if ($this->mandatoryFields['ctx_mode'] == "TEST")
+        }
+        if ("TEST" == $this->mandatoryFields['ctx_mode']) {
             $this->key = $container->getParameter('tlconseil_systempay.key_dev');
-        else
+        } else {
             $this->key = $container->getParameter('tlconseil_systempay.key_prod');
-
+        }
     }
 
     /**
@@ -114,9 +115,11 @@ class SystemPay
      */
     public function setOptionnalFields($fields)
     {
-        foreach ($fields as $field => $value)
-            if (empty($this->mandatoryFields[$field]))
+        foreach ($fields as $field => $value) {
+            if (empty($this->mandatoryFields[$field])) {
                 $this->mandatoryFields[$field] = $value;
+            }
+        }
         return $this;
     }
 
@@ -131,27 +134,27 @@ class SystemPay
 
     /**
      * @param Request $request
-     * @return bool
+     * @return bool|Transaction
      */
     public function responseHandler(Request $request)
     {
         $query = $request->request->all();
 
         // Check signature
-        if (!empty($query['signature']))
-        {
+        if (!empty($query['signature'])) {
             $signature = $query['signature'];
-            unset ($query['signature']);
-            if ($signature == $this->getSignature($query))
-            {
+            unset($query['signature']);
+            if ($signature == $this->getSignature($query)) {
                 $transaction = $this->findTransaction($request);
                 $transaction->setStatus($query['vads_trans_status']);
-                if ($query['vads_trans_status'] == "AUTHORISED")
+                if ($query['vads_trans_status'] == "AUTHORISED") {
                     $transaction->setPaid(true);
+                }
                 $transaction->setUpdatedAt(new \DateTime());
                 $transaction->setLogResponse(json_encode($query));
                 $this->entityManager->flush();
-                return true;
+
+                return $transaction;
             }
         }
         return false;
@@ -191,8 +194,9 @@ class SystemPay
     private function setPrefixToFields(array $fields)
     {
         $newTab = array();
-        foreach ($fields as $field => $value)
+        foreach ($fields as $field => $value) {
             $newTab[sprintf('vads_%s', $field)] = $value;
+        }
         return $newTab;
     }
 
@@ -202,12 +206,14 @@ class SystemPay
      */
     private function getSignature($fields = null)
     {
-        if (!$fields)
+        if (!$fields) {
             $fields = $this->mandatoryFields = $this->setPrefixToFields($this->mandatoryFields);
+        }
         ksort($fields);
         $contenu_signature = "";
-        foreach ($fields as $field => $value)
-                $contenu_signature .= $value."+";
+        foreach ($fields as $field => $value) {
+            $contenu_signature .= $value."+";
+        }
         $contenu_signature .= $this->key;
         //https://payzen.io/fr-FR/form-payment/standard-payment/exemple-d-implementation-en-php.html
         $signature = base64_encode(hash_hmac('sha256', $contenu_signature, $this->key, true));
